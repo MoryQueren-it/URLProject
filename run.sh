@@ -1,31 +1,30 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
+set -e
 
-IMAGE_NAME="quicklink-app"
-CONTAINER_NAME="quicklink"
-PORT="5000"
+IMAGE="quicklink-app"
+CONTAINER="quicklink"
+PORT=5000
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DATA_FILE="$SCRIPT_DIR/links.json"
+cd "$(dirname "$0")"
 
-if [ ! -f "$DATA_FILE" ]; then
-  echo "{}" > "$DATA_FILE"
+if [ ! -f "links.json" ]; then
+  echo "{}" > links.json
 fi
 
-echo "1) Construction de l'image Docker '$IMAGE_NAME'..."
-docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
+echo "Build de l'image..."
+docker build -t "$IMAGE" .
 
-if docker ps -a --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}$"; then
-  echo "2) Suppression de l'ancien conteneur '$CONTAINER_NAME'..."
-  docker rm -f "$CONTAINER_NAME" >/dev/null
+if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
+  echo "Suppression de l'ancien conteneur..."
+  docker rm -f "$CONTAINER" >/dev/null
 fi
 
-echo "3) Démarrage du conteneur '$CONTAINER_NAME' sur le port $PORT..."
+echo "Lancement du conteneur sur le port $PORT..."
 docker run -d \
-  --name "$CONTAINER_NAME" \
+  --name "$CONTAINER" \
   -p "${PORT}:5000" \
-  -v "${DATA_FILE}:/app/links.json" \
-  "$IMAGE_NAME"
+  -v "$(pwd)/links.json:/app/links.json" \
+  "$IMAGE"
 
-echo "4) Exécution d'un shell interactif dans '$CONTAINER_NAME'..."
-docker exec -it "$CONTAINER_NAME" /bin/sh
+echo "Connexion au conteneur (tape 'exit' pour quitter le shell)..."
+docker exec -it "$CONTAINER" /bin/sh
