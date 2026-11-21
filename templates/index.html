@@ -3,55 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickLink - Raccourcisseur Local</title>
+    <title>QuickLink</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='24' height='24' rx='6' fill='%23111111' stroke='none'/%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/%3E%3C/svg%3E">
+    <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='24' height='24' rx='6' fill='%23111111' stroke='none'/%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
 
-    <div class="max-w-4xl mx-auto py-12 px-4">
-        <!-- En-tête -->
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Fond blanc animé subtil et élégant */
+        .bg-ambient {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: linear-gradient(180deg, #ffffff 0%, #f4f6f8 60%, #eef1f5 100%);
+        }
+
+        .subtle-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+            background-size: 36px 36px;
+            animation: driftGrid 28s linear infinite;
+        }
+
+        @keyframes driftGrid {
+            0% { background-position: 0 0, 0 0; }
+            100% { background-position: 36px 36px, 36px 36px; }
+        }
+
+        .soft-blob {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(80px);
+            opacity: 0.55;
+            animation: slowFloat 18s ease-in-out infinite alternate;
+        }
+
+        .blob-top {
+            width: 440px;
+            height: 440px;
+            top: -140px;
+            right: -80px;
+            background: radial-gradient(circle, #e2e8f0 0%, rgba(226, 232, 240, 0) 70%);
+        }
+
+        .blob-bottom {
+            width: 500px;
+            height: 500px;
+            bottom: -180px;
+            left: -120px;
+            background: radial-gradient(circle, #cbd5e1 0%, rgba(203, 213, 225, 0) 72%);
+            animation-delay: -7s;
+        }
+
+        @keyframes slowFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(28px, -22px) scale(1.06); }
+        }
+
+        /* Carte blanche classe et légère */
+        .clean-white-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.07);
+        }
+
+        .fi {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-neutral-900 selection:text-white">
+
+    <!-- Fond clair animé -->
+    <div class="bg-ambient" aria-hidden="true">
+        <div class="subtle-grid"></div>
+        <div class="soft-blob blob-top"></div>
+        <div class="soft-blob blob-bottom"></div>
+    </div>
+
+    <main class="relative z-10 max-w-4xl mx-auto py-14 px-4 sm:px-6">
+
+        <!-- En-tête blanc sobre avec accent noir -->
         <header class="mb-10 text-center">
-            <h1 class="text-4xl font-extrabold tracking-tight text-indigo-400">⚡ QuickLink</h1>
-            <p class="text-slate-400 mt-2">Raccourcisseur d'URL local rapide et léger</p>
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-neutral-900 text-white shadow-sm mb-4">
+                <!-- Icône style Heroicons/Tailwind : Lien -->
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-neutral-900">
+                QuickLink
+            </h1>
+            <p class="text-neutral-500 mt-1.5 text-sm">
+                Raccourcisseur d'URL local et suivi des clics
+            </p>
         </header>
 
-        <!-- Barre d'ajout -->
-        <section class="bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-700 mb-8">
+        <!-- Barre d'ajout sur carte blanche -->
+        <section class="clean-white-card rounded-2xl p-5 sm:p-6 mb-8">
             {% if error %}
-            <div class="mb-4 p-3 rounded-lg bg-red-500/20 border border-red-500/50 text-red-300 text-sm">
-                {{ error }}
+            <div class="mb-4 px-4 py-3 rounded-xl bg-neutral-900 text-white text-sm flex items-center gap-2.5">
+                <i class="fi fi-rr-exclamation text-sm"></i>
+                <span>{{ error }}</span>
             </div>
             {% endif %}
 
             <form method="POST" action="/" class="flex flex-col md:flex-row gap-3">
-                <input 
-                    type="text" 
-                    name="long_url" 
-                    placeholder="Collez votre URL longue ici (ex: https://github.com/...)" 
-                    required
-                    class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-3.5 flex items-center text-neutral-400 pointer-events-none">
+                        <i class="fi fi-rr-link text-sm"></i>
+                    </span>
+                    <input
+                        type="text"
+                        name="long_url"
+                        placeholder="Collez votre URL longue (ex: https://github.com/...)"
+                        required
+                        class="w-full bg-white border border-neutral-200 focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10 rounded-xl pl-10 pr-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition"
+                    >
+                </div>
+
+                <div class="relative md:w-48">
+                    <span class="absolute inset-y-0 left-3.5 flex items-center text-neutral-400 pointer-events-none">
+                        <i class="fi fi-rr-bolt text-sm"></i>
+                    </span>
+                    <input
+                        type="text"
+                        name="custom_code"
+                        placeholder="Nom court"
+                        class="w-full bg-white border border-neutral-200 focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10 rounded-xl pl-10 pr-4 py-3 text-sm font-mono-code text-neutral-900 placeholder-neutral-400 outline-none transition"
+                    >
+                </div>
+
+                <!-- Seul le bouton principal est plein noir pour guider l'action -->
+                <button
+                    type="submit"
+                    class="bg-neutral-900 hover:bg-neutral-800 active:scale-[0.99] text-white font-medium px-6 py-3 rounded-xl text-sm inline-flex items-center justify-center gap-2 transition cursor-pointer shrink-0"
                 >
-                <input 
-                    type="text" 
-                    name="custom_code" 
-                    placeholder="Nom court (optionnel)" 
-                    class="md:w-48 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                <button 
-                    type="submit" 
-                    class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg shadow-indigo-600/20 cursor-pointer"
-                >
-                    Raccourcir
+                    <i class="fi fi-rr-plus text-xs"></i>
+                    <span>Raccourcir</span>
                 </button>
             </form>
         </section>
 
-        <!-- Liste des liens -->
-        <section class="bg-slate-800 rounded-2xl shadow-xl border border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-700 flex justify-between items-center">
-                <h2 class="font-semibold text-lg text-slate-200">Vos liens actifs</h2>
-                <span class="text-xs bg-slate-700 text-slate-300 px-2.5 py-1 rounded-full">
-                    {{ links|length }} lien(s)
+        <!-- Liste des liens sur carte blanche -->
+        <section class="clean-white-card rounded-2xl overflow-hidden">
+            <div class="px-6 py-4 border-b border-neutral-100 flex items-center justify-between bg-white/70">
+                <div class="flex items-center gap-2.5">
+                    <i class="fi fi-rr-list text-neutral-700 text-sm"></i>
+                    <h2 class="font-semibold text-neutral-900 text-base">Liens enregistrés</h2>
+                </div>
+
+                <!-- Badge compteur en noir pour le distinguer -->
+                <span class="bg-neutral-900 text-white font-mono-code text-xs font-medium px-3 py-1 rounded-full">
+                    {{ links|length }}
                 </span>
             </div>
 
@@ -59,51 +186,66 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-900/50 text-slate-400 text-xs uppercase tracking-wider">
-                            <th class="py-3.5 px-6">Lien Court</th>
-                            <th class="py-3.5 px-6">URL Originale</th>
+                        <tr class="border-b border-neutral-100 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 bg-neutral-50/70">
+                            <th class="py-3.5 px-6">Lien court</th>
+                            <th class="py-3.5 px-6">URL originale</th>
                             <th class="py-3.5 px-6 text-center">Clics</th>
                             <th class="py-3.5 px-6 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-700/70 text-sm">
+                    <tbody class="divide-y divide-neutral-100 text-sm">
                         {% for code, data in links.items()|reverse %}
-                        <tr class="hover:bg-slate-700/30 transition">
-                            <td class="py-4 px-6 font-mono font-medium text-indigo-400 whitespace-nowrap">
-                                <a href="/r/{{ code }}" target="_blank" class="hover:underline">
-                                    /r/{{ code }}
+                        <tr class="hover:bg-neutral-50/90 transition">
+                            <!-- Lien court mis en valeur en noir -->
+                            <td class="py-4 px-6 whitespace-nowrap">
+                                <a href="/r/{{ code }}" target="_blank" class="inline-flex items-center gap-1.5 font-mono-code font-semibold text-neutral-900 hover:underline underline-offset-4">
+                                    <span>/r/{{ code }}</span>
+                                    <i class="fi fi-rr-arrow-up-right-from-square text-xs text-neutral-500"></i>
                                 </a>
-                                <div class="text-[11px] text-slate-500 mt-0.5">
+                                <div class="flex items-center gap-1.5 text-xs text-neutral-400 mt-1">
+                                    <i class="fi fi-rr-clock text-[11px]"></i>
                                     {% if data.history %}
-                                        Dernier clic : {{ data.history[-1] }}
+                                        <span>Dernier clic : {{ data.history[-1] }}</span>
                                     {% else %}
-                                        Créé le : {{ data.created_at }}
+                                        <span>Créé : {{ data.created_at }}</span>
                                     {% endif %}
                                 </div>
                             </td>
-                            <td class="py-4 px-6 max-w-xs truncate text-slate-300" title="{{ data.url }}">
+
+                            <td class="py-4 px-6 max-w-xs truncate text-neutral-600" title="{{ data.url }}">
                                 {{ data.url }}
                             </td>
+
+                            <!-- Badge clics en noir pour le distinguer -->
                             <td class="py-4 px-6 text-center">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                                    {{ data.clicks }}
+                                <span class="inline-flex items-center gap-1.5 bg-neutral-900 text-white font-mono-code text-xs font-semibold px-3 py-1 rounded-full">
+                                    <i class="fi fi-rr-cursor-finger text-[11px]"></i>
+                                    <span>{{ data.clicks }}</span>
                                 </span>
                             </td>
-                            <td class="py-4 px-6 text-right whitespace-nowrap space-x-2">
-                                <button 
-                                    onclick="copyShortLink('{{ code }}', this)"
-                                    class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer"
-                                >
-                                    Copier
-                                </button>
-                                <form method="POST" action="/delete/{{ code }}" class="inline">
-                                    <button 
-                                        type="submit" 
-                                        class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer"
+
+                            <td class="py-4 px-6 text-right whitespace-nowrap">
+                                <div class="inline-flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onclick="copyShortLink('{{ code }}', this)"
+                                        class="bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-200 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
                                     >
-                                        Supprimer
+                                        <i class="fi fi-rr-copy copy-icon text-xs"></i>
+                                        <span class="copy-label">Copier</span>
                                     </button>
-                                </form>
+
+                                    <form method="POST" action="/delete/{{ code }}" class="inline">
+                                        <button
+                                            type="submit"
+                                            class="bg-white hover:bg-neutral-100 text-neutral-500 hover:text-neutral-900 border border-neutral-200 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+                                            title="Supprimer"
+                                        >
+                                            <i class="fi fi-rr-trash text-xs"></i>
+                                            <span>Supprimer</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -111,23 +253,37 @@
                 </table>
             </div>
             {% else %}
-            <div class="p-12 text-center text-slate-500">
-                Aucun lien raccourci pour le moment. Ajoutez-en un ci-dessus !
+            <div class="py-14 px-6 text-center">
+                <div class="w-11 h-11 rounded-full bg-neutral-100 text-neutral-500 inline-flex items-center justify-center mb-3">
+                    <i class="fi fi-rr-link-slash text-base"></i>
+                </div>
+                <p class="text-neutral-700 font-medium text-sm">Aucun lien pour le moment</p>
+                <p class="text-neutral-400 text-xs mt-1">Ajoute une URL ci-dessus pour créer ton premier lien court.</p>
             </div>
             {% endif %}
         </section>
-    </div>
+
+    </main>
 
     <script>
         function copyShortLink(code, btn) {
             const fullUrl = `${window.location.origin}/r/${code}`;
             navigator.clipboard.writeText(fullUrl).then(() => {
-                const originalText = btn.innerText;
-                btn.innerText = "Copié !";
-                btn.classList.replace("bg-slate-700", "bg-emerald-600");
+                const label = btn.querySelector('.copy-label');
+                const icon = btn.querySelector('.copy-icon');
+                const prevText = label.innerText;
+                const prevClass = icon.className;
+
+                label.innerText = "Copié";
+                btn.classList.remove("bg-white", "text-neutral-800", "border-neutral-200");
+                btn.classList.add("bg-neutral-900", "text-white", "border-neutral-900");
+                icon.className = "fi fi-rr-check copy-icon text-xs";
+
                 setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.classList.replace("bg-emerald-600", "bg-slate-700");
+                    label.innerText = prevText;
+                    btn.classList.remove("bg-neutral-900", "text-white", "border-neutral-900");
+                    btn.classList.add("bg-white", "text-neutral-800", "border-neutral-200");
+                    icon.className = prevClass;
                 }, 1500);
             });
         }

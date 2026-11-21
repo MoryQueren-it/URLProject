@@ -8,7 +8,6 @@ PORT="5000"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DATA_FILE="$SCRIPT_DIR/links.json"
 
-# S'assurer que links.json existe
 if [ ! -f "$DATA_FILE" ]; then
   echo "{}" > "$DATA_FILE"
 fi
@@ -16,7 +15,6 @@ fi
 echo "1) Construction de l'image Docker '$IMAGE_NAME'..."
 docker build -t "$IMAGE_NAME" "$SCRIPT_DIR"
 
-# Supprimer un éventuel conteneur existant
 if docker ps -a --format '{{.Names}}' | grep -Eq "^${CONTAINER_NAME}$"; then
   echo "2) Suppression de l'ancien conteneur '$CONTAINER_NAME'..."
   docker rm -f "$CONTAINER_NAME" >/dev/null
