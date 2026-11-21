@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuickLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='24' height='24' rx='6' fill='%23111111' stroke='none'/%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/%3E%3C/svg%3E">
     <link rel="shortcut icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='24' height='24' rx='6' fill='%23111111' stroke='none'/%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'/%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'/%3E%3C/svg%3E">
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
@@ -93,6 +94,14 @@
             justify-content: center;
             line-height: 1;
         }
+
+        #live-qrcode img,
+        #live-qrcode canvas,
+        #modal-qrcode img,
+        #modal-qrcode canvas {
+            margin: 0 auto;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-neutral-900 selection:text-white">
@@ -109,7 +118,6 @@
         <!-- En-tête blanc sobre avec accent noir -->
         <header class="mb-10 text-center">
             <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-neutral-900 text-white shadow-sm mb-4">
-                <!-- Icône style Heroicons/Tailwind : Lien -->
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
@@ -118,11 +126,11 @@
                 QuickLink
             </h1>
             <p class="text-neutral-500 mt-1.5 text-sm">
-                Raccourcisseur d'URL local et suivi des clics
+                Raccourcisseur d'URL local et génération de QR code du lien complet
             </p>
         </header>
 
-        <!-- Barre d'ajout sur carte blanche -->
+        <!-- Barre d'ajout + QR code en direct du lien entier saisi -->
         <section class="clean-white-card rounded-2xl p-5 sm:p-6 mb-8">
             {% if error %}
             <div class="mb-4 px-4 py-3 rounded-xl bg-neutral-900 text-white text-sm flex items-center gap-2.5">
@@ -131,15 +139,16 @@
             </div>
             {% endif %}
 
-            <form method="POST" action="/" class="flex flex-col md:flex-row gap-3">
+            <form id="create-link-form" method="POST" action="/" class="flex flex-col md:flex-row gap-3">
                 <div class="relative flex-1">
                     <span class="absolute inset-y-0 left-3.5 flex items-center text-neutral-400 pointer-events-none">
                         <i class="fi fi-rr-link text-sm"></i>
                     </span>
                     <input
+                        id="long-url-input"
                         type="text"
                         name="long_url"
-                        placeholder="Collez votre URL longue (ex: https://github.com/...)"
+                        placeholder="Collez votre URL entière (ex: https://exemple.com/page)"
                         required
                         class="w-full bg-white border border-neutral-200 focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10 rounded-xl pl-10 pr-4 py-3 text-sm text-neutral-900 placeholder-neutral-400 outline-none transition"
                     >
@@ -157,7 +166,6 @@
                     >
                 </div>
 
-                <!-- Seul le bouton principal est plein noir pour guider l'action -->
                 <button
                     type="submit"
                     class="bg-neutral-900 hover:bg-neutral-800 active:scale-[0.99] text-white font-medium px-6 py-3 rounded-xl text-sm inline-flex items-center justify-center gap-2 transition cursor-pointer shrink-0"
@@ -166,6 +174,23 @@
                     <span>Raccourcir</span>
                 </button>
             </form>
+
+            <!-- Aperçu automatique du QR code pour l'URL entière saisie -->
+            <div id="live-qr-box" class="hidden mt-5 pt-5 border-t border-neutral-100 flex flex-col sm:flex-row items-center gap-5">
+                <div class="bg-white border border-neutral-200 rounded-xl p-3 shrink-0">
+                    <div id="live-qrcode"></div>
+                </div>
+                <div class="text-center sm:text-left min-w-0 flex-1">
+                    <div class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-900 mb-1">
+                        <i class="fi fi-rr-qr text-xs"></i>
+                        <span>QR Code du lien entier</span>
+                    </div>
+                    <p id="live-qr-url" class="font-mono-code text-xs text-neutral-600 break-all bg-neutral-50 border border-neutral-100 rounded-lg px-3 py-2"></p>
+                    <p class="text-xs text-neutral-400 mt-1.5">
+                        Scannez avec votre téléphone pour ouvrir directement ce lien complet.
+                    </p>
+                </div>
+            </div>
         </section>
 
         <!-- Liste des liens sur carte blanche -->
@@ -176,7 +201,6 @@
                     <h2 class="font-semibold text-neutral-900 text-base">Liens enregistrés</h2>
                 </div>
 
-                <!-- Badge compteur en noir pour le distinguer -->
                 <span class="bg-neutral-900 text-white font-mono-code text-xs font-medium px-3 py-1 rounded-full">
                     {{ links|length }}
                 </span>
@@ -188,7 +212,7 @@
                     <thead>
                         <tr class="border-b border-neutral-100 text-[11px] font-semibold uppercase tracking-wider text-neutral-400 bg-neutral-50/70">
                             <th class="py-3.5 px-6">Lien court</th>
-                            <th class="py-3.5 px-6">URL originale</th>
+                            <th class="py-3.5 px-6">Lien entier</th>
                             <th class="py-3.5 px-6 text-center">Clics</th>
                             <th class="py-3.5 px-6 text-right">Actions</th>
                         </tr>
@@ -196,7 +220,6 @@
                     <tbody class="divide-y divide-neutral-100 text-sm">
                         {% for code, data in links.items()|reverse %}
                         <tr class="hover:bg-neutral-50/90 transition">
-                            <!-- Lien court mis en valeur en noir -->
                             <td class="py-4 px-6 whitespace-nowrap">
                                 <a href="/r/{{ code }}" target="_blank" class="inline-flex items-center gap-1.5 font-mono-code font-semibold text-neutral-900 hover:underline underline-offset-4">
                                     <span>/r/{{ code }}</span>
@@ -213,10 +236,11 @@
                             </td>
 
                             <td class="py-4 px-6 max-w-xs truncate text-neutral-600" title="{{ data.url }}">
-                                {{ data.url }}
+                                <a href="{{ data.url }}" target="_blank" rel="noopener noreferrer" class="hover:text-neutral-900 hover:underline underline-offset-2">
+                                    {{ data.url }}
+                                </a>
                             </td>
 
-                            <!-- Badge clics en noir pour le distinguer -->
                             <td class="py-4 px-6 text-center">
                                 <span class="inline-flex items-center gap-1.5 bg-neutral-900 text-white font-mono-code text-xs font-semibold px-3 py-1 rounded-full">
                                     <i class="fi fi-rr-cursor-finger text-[11px]"></i>
@@ -226,6 +250,17 @@
 
                             <td class="py-4 px-6 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        data-url="{{ data.url }}"
+                                        onclick="openFullUrlQr(this)"
+                                        class="bg-white hover:bg-neutral-100 text-neutral-800 border border-neutral-200 px-3 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+                                        title="QR Code du lien entier"
+                                    >
+                                        <i class="fi fi-rr-qr text-xs"></i>
+                                        <span>QR</span>
+                                    </button>
+
                                     <button
                                         type="button"
                                         onclick="copyShortLink('{{ code }}', this)"
@@ -265,7 +300,102 @@
 
     </main>
 
+    <!-- Modale QR Code du lien entier -->
+    <div id="qr-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-neutral-950/50 backdrop-blur-xs p-4" onclick="handleBackdropClick(event)">
+        <div class="bg-white border border-neutral-200 rounded-2xl max-w-sm w-full p-6 shadow-xl text-center">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fi fi-rr-qr text-neutral-900 text-sm"></i>
+                    <h3 class="font-semibold text-neutral-900 text-base">QR Code du lien entier</h3>
+                </div>
+                <button type="button" onclick="closeQrModal()" class="text-neutral-400 hover:text-neutral-900 p-1 rounded-lg transition cursor-pointer" title="Fermer">
+                    <i class="fi fi-rr-cross text-xs"></i>
+                </button>
+            </div>
+
+            <div class="bg-white border border-neutral-100 rounded-xl p-4 mb-4">
+                <div id="modal-qrcode"></div>
+            </div>
+
+            <p id="modal-qr-url" class="font-mono-code text-xs text-neutral-600 break-all bg-neutral-50 border border-neutral-100 rounded-lg px-3 py-2 mb-4"></p>
+
+            <div class="flex items-center justify-center gap-2">
+                <a id="modal-open-link" href="#" target="_blank" rel="noopener noreferrer" class="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-medium py-2.5 px-4 rounded-xl inline-flex items-center justify-center gap-1.5 transition">
+                    <i class="fi fi-rr-arrow-up-right-from-square text-xs"></i>
+                    <span>Ouvrir le lien</span>
+                </a>
+                <button type="button" onclick="closeQrModal()" class="bg-white hover:bg-neutral-100 text-neutral-700 border border-neutral-200 text-xs font-medium py-2.5 px-4 rounded-xl transition cursor-pointer">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function normalizeFullUrl(raw) {
+            const trimmed = (raw || "").trim();
+            if (!trimmed) return "";
+            if (/^https?:\/\//i.test(trimmed)) return trimmed;
+            return "https://" + trimmed;
+        }
+
+        function drawQr(targetElementId, text, size) {
+            const container = document.getElementById(targetElementId);
+            container.innerHTML = "";
+            new QRCode(container, {
+                text: text,
+                width: size,
+                height: size,
+                colorDark: "#0a0a0a",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+
+        // Génère automatiquement le QR code du lien entier saisi dans le formulaire
+        const urlInput = document.getElementById("long-url-input");
+        const liveQrBox = document.getElementById("live-qr-box");
+        const liveQrUrlText = document.getElementById("live-qr-url");
+
+        function updateLiveQr() {
+            const fullUrl = normalizeFullUrl(urlInput.value);
+            if (!fullUrl) {
+                liveQrBox.classList.add("hidden");
+                document.getElementById("live-qrcode").innerHTML = "";
+                return;
+            }
+            liveQrBox.classList.remove("hidden");
+            liveQrUrlText.innerText = fullUrl;
+            drawQr("live-qrcode", fullUrl, 132);
+        }
+
+        urlInput.addEventListener("input", updateLiveQr);
+        urlInput.addEventListener("paste", () => setTimeout(updateLiveQr, 0));
+
+        // Modale QR code du lien entier depuis la liste
+        function openFullUrlQr(btn) {
+            const fullUrl = btn.getAttribute("data-url");
+            document.getElementById("modal-qr-url").innerText = fullUrl;
+            document.getElementById("modal-open-link").href = fullUrl;
+            drawQr("modal-qrcode", fullUrl, 196);
+
+            const modal = document.getElementById("qr-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeQrModal() {
+            const modal = document.getElementById("qr-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function handleBackdropClick(event) {
+            if (event.target.id === "qr-modal") {
+                closeQrModal();
+            }
+        }
+
         function copyShortLink(code, btn) {
             const fullUrl = `${window.location.origin}/r/${code}`;
             navigator.clipboard.writeText(fullUrl).then(() => {
