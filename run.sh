@@ -3,7 +3,7 @@ set -e
 
 IMAGE="quicklink-app"
 CONTAINER="quicklink"
-PORT=5000
+PORT=7000
 
 cd "$(dirname "$0")"
 
@@ -22,7 +22,7 @@ fi
 echo "Lancement du conteneur sur le port $PORT..."
 docker run -d \
   --name "$CONTAINER" \
-  -p "${PORT}:5000" \
+  -p "${PORT}:7000" \
   -v "$(pwd)/links.json:/app/links.json" \
   "$IMAGE"
 
